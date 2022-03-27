@@ -7,9 +7,7 @@
 #
 # A group folder is created at `/opt/hubshare/<grpname>` and two subfolders
 # are created:
-#  1) `shared` any documents copied to this folder can be modified by all
-#     members of the group.
-#  2) `published` documents created in subfolders of this folder can not be
+#  1) `_shared` documents created in subfolders of this folder can not be
 #     modified or deleted by other members of the group, only the owner.
 #     However, all members of the group can read and copy these documents.
 #     Documents should not be saved directly in the `published`
@@ -20,7 +18,8 @@
 # visible in each group members home directory.
 #
 # Jonathan Gutow <gutow@uwosh.edu>
-# June 2020
+# Edited by: Konstantinos Anastasakis  <https://github.com/konanast>
+# June 2022
 # license: GPLV3+
 
 GRP="hub_"$1
@@ -43,11 +42,9 @@ fi
 # Now we can make the directories for sharing and publishing
 # to the group.
 GRPDIR="/opt/hubshare/"$1
-SHARED=$GRPDIR"/shared"
-PUBLISHED=$GRPDIR"/published"
+PUBLISHED=$GRPDIR"/_shared"
 
 mkdir $GRPDIR
-mkdir $SHARED
 mkdir $PUBLISHED
 
 # make the group
@@ -55,20 +52,15 @@ groupadd $GRP
 
 # Set permissions
 chgrp $GRP $GRPDIR
-chgrp $GRP $SHARED
 chgrp $GRP $PUBLISHED
 
 chmod u=rwx,g=rx,o=- $GRPDIR
-chmod u=rwx,g=rwx,o=- $SHARED
-chmod +s $SHARED # new subdirectories inherit permissions
-setfacl -d -m g::rwX /$SHARED  # new files are rwx for group.
 chmod u=rwx,g=rwx,o=- $PUBLISHED
 chmod +s $PUBLISHED # new subdirectories inherit permissions
 
 echo "Created group: "$GRP
 echo "Created group directory: "$GRPDIR
-echo "Created directory for shared (group editable files): "$SHARED
-echo "Created directory for group published files (creator only editable): "$PUBLISHED
+echo "Created directory (_shared) for group published files (creator only editable): "$PUBLISHED
 echo "Add users to the group and a symlink in their home directory to allow use."
 
 exit 0
